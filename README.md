@@ -45,3 +45,9 @@ docker run -d -e GCS_BUCKET=yet-another-docker-bucket -p 5000:5000 google/docker
 ```
 
 For more information about usage please refer to [google/docker-registry](https://index.docker.io/u/google/docker-registry/) docs.
+
+
+### Notes
+
+Current image size: 277.7 MB
+
