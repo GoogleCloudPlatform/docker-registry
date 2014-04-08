@@ -1,0 +1,9 @@
+common:
+    boto_bucket: "_env:GCS_BUCKET"
+    oauth2: true
+    secret_key: "_env:SECRET_KEY"
+
+dev:
+    storage: gcs
+    loglevel: debug
+    storage_path: "_env:STORAGE_PATH:/"

@@ -1,17 +1,19 @@
 #!/bin/bash
+set -e
 
-cd $SERVICE_APPROOT
+export DEBIAN_FRONTEND=noninteractive
 
-[ -d ~/env ] ||
-    virtualenv --python=python2.7 ~/env || exit 1
-. ~/env/bin/activate
+apt-get update || true
+apt-get install -y --no-install-recommends \
+    git-core python-gevent gcc python-dev \
+    gunicorn python-boto liblzma-dev \
+    python-yaml python-lzma python-crypto python-requests \
+    python-simplejson python-redis python-openssl wget python-pip
+rm /var/lib/apt/lists/*_*
+apt-get clean
 
-[ -f requirements.txt ] &&
-    pip install --download-cache=~/.pip-cache -r requirements.txt || exit 1
+(cd /docker-registry && pip install -r requirements.txt)
+apt-get purge -y --force-yes gcc python-dev git-core
+apt-get autoremove -y --force-yes
 
-cp -R * ~/
-
-cat > ~/profile << ENDPROFILE
-. ~/env/bin/activate
-export PYTHONPATH=~/
-ENDPROFILE
+mv /docker-registry/config.yml /docker-registry/config/config.yml
