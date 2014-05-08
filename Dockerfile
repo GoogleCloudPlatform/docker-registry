@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM google/debian:wheezy
 
 ADD . /docker-registry
 

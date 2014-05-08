@@ -20,11 +20,12 @@ After [google/docker-registry](https://index.docker.io/u/google/docker-registry)
 
 #### Locally
 
-1. Start the registry and mount your credentials from a data container named gcloud-config. You also need to pass some environment variables to your container, i.e. GCS_BUCKET and an EMAIL address that you have logged in with. For more information about getting OAuth2 credentials please refer to [google/cloud-sdk](https://index.docker.io/u/google/cloud-sdk/) documentation.
+1. Start the registry and mount your credentials from a data container named gcloud-config. You also need to pass some environment variables to your container, i.e. GCS_BUCKET and BOTO_PATH (path to your .boto file with credentials. If you have logged in with [gcloud container](https://index.docker.io/u/google/cloud-sdk/), your credentials are in /.config/gcloud/legacy_credentials/<YOUR_EMAIL>/.boto. For more information about getting OAuth2 credentials please refer to [google/cloud-sdk](https://index.docker.io/u/google/cloud-sdk/) documentation.
 
 
     ```
-    docker run -d -e GCS_BUCKET=yet-another-docker-bucket -e EMAIL=<your email> -p 5000:5000 \
+    docker run -d -e GCS_BUCKET=yet-another-docker-bucket \
+    -e BOTO_PATH='/.config/gcloud/legacy_credentials/<YOUR_EMAIL>/.boto' -p 5000:5000 \
     --volumes-from gcloud-config google/docker-registry
     ```
 
