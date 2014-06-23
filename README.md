@@ -14,9 +14,7 @@ After [google/docker-registry](https://index.docker.io/u/google/docker-registry)
 
 You need to specify the GCS bucket to store your images in.  To do that, set the `GCS_BUCKET` environment variable when running the Docker container.
 
-```
-docker run -d -e GCS_BUCKET=your-bucket -p 5000:5000 google/docker-registry
-```
+    docker run -d -e GCS_BUCKET=your-bucket -p 5000:5000 google/docker-registry
 
 ### Credentials
 
@@ -24,62 +22,51 @@ There are three ways to specify the credentials:
 
 1. Specify the Google Cloud Platform OAuth refresh token directly in an environment variable.  It is best to put this in an `--env-file` so it can't be seen with `ps` when not running detached.  Example:
 
-  ```
-  $ cat registry-params.env
-  GCP_OAUTH2_REFRESH_TOKEN=refresh-token
-  GCS_BUCKET=your-bucket
-  $ docker run -d --env-file=registry-params.env -p 5000:5000 google/docker-registry
-  ```
+        $ cat registry-params.env
+        GCP_OAUTH2_REFRESH_TOKEN=refresh-token
+        GCS_BUCKET=your-bucket
+        $ docker run -d --env-file=registry-params.env -p 5000:5000 google/docker-registry
 
 1.  A `.boto` file in the `/.config` directory in the `docker-registry` container. The easiest way to do this is to use the `google/cloud-sdk` Docker image to create these credentials, and import its `/.config` volume using `--volumes-from`.
 
-  ```
-  $ docker run -ti --name gcloud-config google/cloud-sdk gcloud auth login
-  Go to the following link in your browser:
+        $ docker run -ti --name gcloud-config google/cloud-sdk gcloud auth login
+        Go to the following link in your browser:
 
-      https://accounts.google.com/o/oauth2/auth [snip]
+            https://accounts.google.com/o/oauth2/auth [snip]
 
-  Enter verification code: [snip]
+        Enter verification code: [snip]
 
-  You are now logged in as [you@gmail.com].
-  Your current project is [None].  You can change this setting by running:
-    $ gcloud config set project <project>
+        You are now logged in as [you@gmail.com].
+        Your current project is [None].  You can change this setting by running:
+          $ gcloud config set project <project>
 
-  $ docker run -ti --volumes-from gcloud-config google/cloud-sdk \
-      gcloud config set project <project>
+        $ docker run -ti --volumes-from gcloud-config google/cloud-sdk \
+            gcloud config set project <project>
 
-  $ docker run -d -e GCS_BUCKET=your-bucket -p 5000:5000 \
-      --volumes-from gcloud-config google/docker-registry
-  ```
+        $ docker run -d -e GCS_BUCKET=your-bucket -p 5000:5000 \
+            --volumes-from gcloud-config google/docker-registry
 
 1. Run on [Google Compute Engine](https://cloud.google.com/products/compute-engine/) with a properly configured service account:
 
-  ```
-  $ gcutil addinstance --zone=us-central1-a --machine_type=f1-micro \
-      --image=projects/google-containers/global/images/container-vm-v20140522 \
-      --service_account_scopes=storage-rw \
-      my-docker-vm
+        $ gcutil addinstance --zone=us-central1-a --machine_type=f1-micro \
+            --image=projects/google-containers/global/images/container-vm-v20140522 \
+            --service_account_scopes=storage-rw \
+            my-docker-vm
 
-  [snip]
+        [snip]
 
-  $ gcutil ssh my-docker-vm
-  $ sudo docker run -d -e GCS_BUCKET=your-bucket -p 5000:5000 google/docker-registry
-  ```
+        $ gcutil ssh my-docker-vm
+        $ sudo docker run -d -e GCS_BUCKET=your-bucket -p 5000:5000 google/docker-registry
 
 ### Using the registry
 
-```
-docker tag myawesomeimage localhost:5000/myawesomeimage
-docker push localhost:5000/myawesomeimage
-```
+    docker tag myawesomeimage localhost:5000/myawesomeimage
+    docker push localhost:5000/myawesomeimage
 
 ## Building google/docker-registry image
 
-```
-docker build -t google/docker-registry .
-```
+    docker build -t google/docker-registry .
 
 ## Notes
 
 Current image size: 257.4 MB
-
