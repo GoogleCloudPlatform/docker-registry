@@ -5,7 +5,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 apt-get update || true
 apt-get install -y --no-install-recommends \
-    git-core python-gevent gcc python-dev \
+    git-core gcc python-dev \
     gunicorn python-boto liblzma-dev \
     python-yaml python-lzma python-crypto python-requests \
     python-simplejson python-redis python-openssl wget python-pip
