@@ -11,7 +11,7 @@ USAGE="docker run -e GCS_BUCKET=yet-another-docker-bucket \
 -p 5000:5000 \
 [--volumes-from gcloud-config] google/docker-registry"
 
-if [[ -z GCS_BUCKET ]]; then
+if [[ -z "${GCS_BUCKET}" ]]; then
   echo "GCS_BUCKET not defined"
   echo
   echo "$USAGE"
