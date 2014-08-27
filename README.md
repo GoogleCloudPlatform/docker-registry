@@ -16,6 +16,10 @@ You need to specify the GCS bucket to store your images in.  To do that, set the
 
     docker run -d -e GCS_BUCKET=your-bucket -p 5000:5000 google/docker-registry
 
+You can optionally set the `STORAGE_PATH` environment variable to specify the path to the registry location inside the bucket.  Make sure to have a leading slash and not have a trailing one in the path specification.
+
+    docker run -d -e GCS_BUCKET=your-bucket -e STORAGE_PATH=/containers -p 5000:5000 google/docker-registry
+
 ### Credentials
 
 There are three ways to specify the credentials:
