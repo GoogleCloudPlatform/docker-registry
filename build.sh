@@ -13,7 +13,6 @@ rm /var/lib/apt/lists/*_*
 apt-get clean
 
 (cd /docker-registry && pip install -r requirements.txt)
+
 apt-get purge -y --force-yes gcc python-dev git-core
 apt-get autoremove -y --force-yes
-
-mv /docker-registry/config.yml /docker-registry/config/config.yml

@@ -1,8 +1,10 @@
 FROM google/debian:wheezy
 
-ADD . /docker-registry
-
+ADD requirements.txt /docker-registry/requirements.txt
+ADD build.sh /docker-registry/build.sh
 RUN /docker-registry/build.sh
+ADD . /docker-registry
+RUN ln -s /docker-registry/config.yml /docker-registry/config/config.yml
 
 # This is the default port that docker-registry is listening on.
 # Needs to be set into 5000 or the value of REGISTRY_PORT environment variable
