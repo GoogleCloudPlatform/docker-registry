@@ -28,7 +28,7 @@ class GSStorage(BotoStorage):
 
     def makeConnection(self):
         if self._config.oauth2 is True:
-            from oauth2_plugin import oauth2_plugin  # flake8: noqa
+            from gcs_oauth2_boto_plugin import oauth2_plugin  # flake8: noqa
 
             uri = boto.storage_uri(self._config.boto_bucket, 'gs')
             return uri.connect()
