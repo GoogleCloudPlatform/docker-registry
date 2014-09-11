@@ -28,7 +28,11 @@ class GSStorage(BotoStorage):
 
     def makeConnection(self):
         if self._config.oauth2 is True:
-            from oauth2_plugin import oauth2_plugin  # flake8: noqa
+            # add the GoogleCompute / service_account flag to the boto.config
+            # so that gcs_oauth2_boto_plugin will enable loading credentials from GCE metadata
+            boto.config.save_system_option("GoogleCompute","service_account","true")
+            
+            from gcs_oauth2_boto_plugin import oauth2_plugin  # flake8: noqa
 
             uri = boto.storage_uri(self._config.boto_bucket, 'gs')
             return uri.connect()
