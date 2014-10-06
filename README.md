@@ -31,7 +31,7 @@ There are three ways to specify the credentials:
         GCS_BUCKET=your-bucket
         $ docker run -d --env-file=registry-params.env -p 5000:5000 google/docker-registry
 
-1.  A `.boto` file in the `/.config` directory in the `docker-registry` container. The easiest way to do this is to use the `google/cloud-sdk` Docker image to create these credentials, and import its `/.config` volume using `--volumes-from`.
+1. A `.boto` file in the `/.config` directory in the `docker-registry` container. The easiest way to do this is to use the `google/cloud-sdk` Docker image to create these credentials, and import its `/.config` volume using `--volumes-from`.
 
         $ docker run -ti --name gcloud-config google/cloud-sdk gcloud auth login
         Go to the following link in your browser:
@@ -48,6 +48,11 @@ There are three ways to specify the credentials:
             gcloud config set project <project>
 
         $ docker run -d -e GCS_BUCKET=your-bucket -p 5000:5000 \
+            --volumes-from gcloud-config google/docker-registry
+
+   You can optionally set `GCP_ACCOUNT` if you want to select a different user than the default one:
+
+        $ docker run -d -e GCS_BUCKET=your-bucket GCP_ACCOUNT=your-secondary-email -p 5000:5000 \
             --volumes-from gcloud-config google/docker-registry
 
 1. Run on [Google Compute Engine](https://cloud.google.com/products/compute-engine/) with a properly configured service account:
