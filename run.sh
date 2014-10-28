@@ -1,11 +1,6 @@
 #!/bin/bash
 
-GUNICORN_WORKERS=${GUNICORN_WORKERS:-1}
-REGISTRY_PORT=${REGISTRY_PORT:-5000}
-GUNICORN_GRACEFUL_TIMEOUT=${GUNICORN_GRACEFUL_TIMEOUT:-3600}
-GUNICORN_SILENT_TIMEOUT=${GUNICORN_SILENT_TIMEOUT:-3600}
-
-USAGE="docker run -e GCS_BUCKET=yet-another-docker-bucket \
+USAGE="docker run -e GCS_BUCKET=<YOUR_GCS_BUCKET_NAME> \
 [-e GCP_ACCOUNT='<YOUR_EMAIL>' ] \
 [-e BOTO_PATH='/.config/gcloud/legacy_credentials/<YOUR_EMAIL>/.boto'] \
 [-e GCP_OAUTH2_REFRESH_TOKEN=<refresh token>] \
@@ -15,7 +10,7 @@ USAGE="docker run -e GCS_BUCKET=yet-another-docker-bucket \
 if [[ -z "${GCS_BUCKET}" ]]; then
   echo "GCS_BUCKET not defined"
   echo
-  echo "$USAGE"
+  echo "Usage: $USAGE"
   exit 1
 fi
 
@@ -39,9 +34,9 @@ if [[ -n "${BOTO_PATH}" ]]; then
   echo "Using credentials in ${BOTO_PATH}"
 else
   # fallback on GCE auth
-  wget -q --header='Metadata-Flavor: Google' \
+  curl --silent -H 'Metadata-Flavor: Google' \
     http://metadata.google.internal./computeMetadata/v1/instance/service-accounts/default/scopes \
-    -O - | grep devstorage > /dev/null
+    | grep devstorage > /dev/null
   GCE_SA=$?
 
   if [[ $GCE_SA -eq 0 ]]; then
@@ -59,6 +54,4 @@ else
 fi
 
 export GCS_BUCKET BOTO_PATH
-
-cd "$(dirname $0)"
-exec gunicorn --access-logfile - --debug --max-requests 100 --graceful-timeout $GUNICORN_GRACEFUL_TIMEOUT -t $GUNICORN_SILENT_TIMEOUT -k gevent -b 0.0.0.0:$REGISTRY_PORT -w $GUNICORN_WORKERS wsgi:application
+exec docker-registry $*

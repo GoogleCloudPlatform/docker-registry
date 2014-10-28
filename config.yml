@@ -1,9 +1,16 @@
-common:
-    boto_bucket: "_env:GCS_BUCKET"
-    oauth2: true
-    secret_key: "_env:SECRET_KEY"
+common: &common
+  loglevel: info
+  storage: gcs
+  oauth2: true
+  boto_bucket: "_env:GCS_BUCKET"
+  secret_key: "_env:SECRET_KEY"
+  storage_path: "_env:STORAGE_PATH:/"
+  standalone: true
 
 dev:
-    storage: gcs
-    loglevel: debug
-    storage_path: "_env:STORAGE_PATH:/"
+  <<: *common
+  loglevel: debug
+
+prod:
+  <<: *common
+  loglevel: warn

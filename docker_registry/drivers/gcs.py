@@ -1,4 +1,3 @@
-
 import gevent.monkey
 gevent.monkey.patch_all()
 
@@ -7,21 +6,18 @@ import logging
 import boto.gs.connection
 import boto.gs.key
 
-import cache_lru
-
-from boto_base import BotoStorage
-
+from docker_registry.core import lru
+from docker_registry.core import boto as coreboto
 
 logger = logging.getLogger(__name__)
 
+class Storage(coreboto.Base):
 
-class GSStorage(BotoStorage):
-
-    def __init__(self, config):
-        BotoStorage.__init__(self, config)
+    def __init__(self, path, config):
+        super(Storage, self).__init__(path, config)
 
     def _build_connection_params(self):
-        kwargs = BotoStorage._build_connection_params(self)
+        kwargs = super(Storage, self)._build_connection_params()
         if self._config.gs_secure is not None:
             kwargs['is_secure'] = (self._config.gs_secure is True)
         return kwargs
@@ -31,9 +27,7 @@ class GSStorage(BotoStorage):
             # add the GoogleCompute / service_account flag to the boto.config
             # so that gcs_oauth2_boto_plugin will enable loading credentials from GCE metadata
             boto.config.save_system_option("GoogleCompute","service_account","true")
-            
-            from gcs_oauth2_boto_plugin import oauth2_plugin  # flake8: noqa
-
+            from gcs_oauth2_boto_plugin import oauth2_plugin
             uri = boto.storage_uri(self._config.boto_bucket, 'gs')
             return uri.connect()
 
@@ -46,7 +40,7 @@ class GSStorage(BotoStorage):
     def makeKey(self, path):
         return boto.gs.key.Key(self._boto_bucket, path)
 
-    @cache_lru.put
+    @lru.set
     def put_content(self, path, content):
         path = self._init_path(path)
         key = self.makeKey(path)
