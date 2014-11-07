@@ -62,6 +62,13 @@ There are three ways to specify the credentials:
         $ gcutil ssh my-docker-vm
         $ sudo docker run -d -e GCS_BUCKET=your-bucket -p 5000:5000 google/docker-registry
 
+### SSL
+
+    # generate credentials and copy CA to /etc/docker/certs.d
+    docker run -e SECURE=ssl -e REGISTRY_COMMON_NAME=localhost:5000 -v /etc/docker/certs.d:/certs.d -p 5000:5000 ... google/docker-registry
+    # save or reuse credentials from /mycerts
+    docker run -e SECURE=ssl -e REGISTRY_COMMON_NAME=localhost:5000 -v /mycerts:/ssl -v /etc/docker/certs.d:/certs.d -p 5000:5000 ... google/docker-registry
+
 ### Using the registry
 
     docker tag myawesomeimage localhost:5000/myawesomeimage

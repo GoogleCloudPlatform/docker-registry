@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 USAGE="docker run -e GCS_BUCKET=<YOUR_GCS_BUCKET_NAME> \
 [-e GCP_ACCOUNT='<YOUR_EMAIL>' ] \
@@ -51,6 +52,24 @@ else
     echo "$USAGE"
     exit 1
   fi
+fi
+
+if [ "${SECURE}" = "ssl" ]; then
+  ls /ssl/ssl.conf || cat <<EOF > /ssl/ssl.conf
+[req]
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+[v3_ca]
+basicConstraints = CA:TRUE
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = localhost
+DNS.1 = boot2docker.local
+IP.1 = 192.168.59.103
+IP.2 = 127.0.0.1
+EOF
+  ls /ssl/ca.{key,crt} || (openssl req -subj "/CN=${REGISTRY_COMMON_NAME}" -config /ssl/ssl.conf -extensions v3_ca -new -x509 -days 365 -newkey rsa:2048 -nodes -keyout /ssl/ca.key -out /ssl/ca.crt && mkdir -p /certs.d/${REGISTRY_COMMON_NAME} && cp /ssl/ca.crt /certs.d/${REGISTRY_COMMON_NAME}/)
+  export GUNICORN_OPTS="['--certfile','/ssl/ca.crt','--keyfile','/ssl/ca.key','--ca-certs','/ssl/ca.crt']"
 fi
 
 export GCS_BUCKET BOTO_PATH
