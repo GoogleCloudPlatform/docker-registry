@@ -77,13 +77,13 @@ EOF
   if ! ls /ssl/ca.{key,crt}; then
       echo 01 > /ssl/ca.srl
       openssl req -subj "/CN=${REGISTRY_COMMON_NAME}" -config /ssl/ssl.conf -extensions v3_ca -new -x509 -days 365 -newkey rsa:2048 -nodes -keyout /ssl/ca.key -out /ssl/ca.crt
-      openssl req -subj "/CN=${REGISTRY_COMMON_NAME}" -config /ssl/ssl.conf -reqexts v3_req -new -newkey rsa:2048 -nodes -keyout /ssl/server.key -out /ssl/server.csr
-      openssl x509 -req -extfile /ssl/ssl.conf -extensions v3_req -days 365 -in /ssl/server.csr -CA /ssl/ca.crt -CAkey /ssl/ca.key -out /ssl/server.cert
+      openssl req -subj "/CN=${REGISTRY_COMMON_NAME}" -config /ssl/ssl.conf -reqexts v3_req -new -newkey rsa:2048 -nodes -keyout /ssl/registry.key -out /ssl/registry.csr
+      openssl x509 -req -extfile /ssl/ssl.conf -extensions v3_req -days 365 -in /ssl/registry.csr -CA /ssl/ca.crt -CAkey /ssl/ca.key -out /ssl/registry.cert
       mkdir -p /certs.d/${REGISTRY_COMMON_NAME}
       cp /ssl/ca.crt /certs.d/${REGISTRY_COMMON_NAME}/
   fi
   SSL_VERSION=$(python -c 'import ssl; print ssl.PROTOCOL_TLSv1')
-  : ${GUNICORN_OPTS:="['--certfile','/ssl/server.cert','--keyfile','/ssl/server.key','--ca-certs','/ssl/ca.crt','--ssl-version','$SSL_VERSION','--log-level','debug']"}
+  : ${GUNICORN_OPTS:="['--certfile','/ssl/registry.cert','--keyfile','/ssl/registry.key','--ca-certs','/ssl/ca.crt','--ssl-version','$SSL_VERSION','--log-level','debug']"}
 fi
 
 export GCS_BUCKET BOTO_PATH GUNICORN_OPTS
