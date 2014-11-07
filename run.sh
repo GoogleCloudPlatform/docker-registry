@@ -69,8 +69,9 @@ IP.1 = 192.168.59.103
 IP.2 = 127.0.0.1
 EOF
   ls /ssl/ca.{key,crt} || (openssl req -subj "/CN=${REGISTRY_COMMON_NAME}" -config /ssl/ssl.conf -extensions v3_ca -new -x509 -days 365 -newkey rsa:2048 -nodes -keyout /ssl/ca.key -out /ssl/ca.crt && mkdir -p /certs.d/${REGISTRY_COMMON_NAME} && cp /ssl/ca.crt /certs.d/${REGISTRY_COMMON_NAME}/)
-  export GUNICORN_OPTS="['--certfile','/ssl/ca.crt','--keyfile','/ssl/ca.key','--ca-certs','/ssl/ca.crt']"
+  ls /ssl/server.{key,cert} || (ln -s /ssl/ca.key /ssl/server.key && ln -s /ssl/ca.crt  /ssl/server.cert)
+  GUNICORN_OPTS="['--certfile','/ssl/server.cert','--keyfile','/ssl/server.key','--ca-certs','/ssl/ca.crt']"
 fi
 
-export GCS_BUCKET BOTO_PATH
-exec docker-registry $*
+export GCS_BUCKET BOTO_PATH GUNICORN_OPTS
+exec "$@"

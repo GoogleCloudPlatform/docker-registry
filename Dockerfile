@@ -29,4 +29,5 @@ EXPOSE 5000
 
 ENV SETTINGS_FLAVOR prod
 WORKDIR /docker-registry
+CMD ["docker-registry"]
 ENTRYPOINT ["./run.sh"]
