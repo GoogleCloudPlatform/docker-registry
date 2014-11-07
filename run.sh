@@ -54,7 +54,7 @@ else
   fi
 fi
 
-if [ "${SECURE}" = "ssl" ]; then
+if [ -n "${REGISTRY_TLS_VERIFY}" ]; then
   set -x
   if ! ls /ssl/ssl.conf; then
       cat <<EOF > /ssl/ssl.conf
@@ -82,7 +82,8 @@ EOF
       mkdir -p /certs.d/${REGISTRY_COMMON_NAME}
       cp /ssl/ca.crt /certs.d/${REGISTRY_COMMON_NAME}/
   fi
-  GUNICORN_OPTS="['--certfile','/ssl/server.cert','--keyfile','/ssl/server.key','--ca-certs','/ssl/ca.crt']"
+  SSL_VERSION=$(python -c 'import ssl; print ssl.PROTOCOL_TLSv1')
+  : ${GUNICORN_OPTS:="['--certfile','/ssl/server.cert','--keyfile','/ssl/server.key','--ca-certs','/ssl/ca.crt','--ssl-version','$SSL_VERSION','--log-level','debug']"}
 fi
 
 export GCS_BUCKET BOTO_PATH GUNICORN_OPTS
