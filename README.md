@@ -73,4 +73,5 @@ There are three ways to specify the credentials:
 
 ## Notes
 
-Current image size: 257.4 MB
+Current image size: 428.8 MB
+
