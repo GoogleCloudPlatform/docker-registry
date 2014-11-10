@@ -54,24 +54,29 @@ else
   fi
 fi
 
-if [ -n "${REGISTRY_TLS_VERIFY}" ]; then
-  set -x
+if [ -n "${REGISTRY_TLS_VERIFY}" ] && [ -z "${GUNICORN_OPTS}" ]; then
+  : ${REGISTRY_ALT_HOSTNAME:=boot2docker.local}
+  : ${REGISTRY_ALT_IP:=192.168.59.103}
   if ! ls /ssl/ssl.conf; then
       cat <<EOF > /ssl/ssl.conf
 [req]
 distinguished_name = req_distinguished_name
 [req_distinguished_name]
 [v3_ca]
-basicConstraints = CA:TRUE
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, keyCertSign
 subjectAltName = @alt_names
 [v3_req]
-basicConstraints = CA:FALSE
+basicConstraints = critical, CA:false
+keyUsage = critical, digitalSignature
+extendedKeyUsage = critical, serverAuth
+nsCertType = server
 subjectAltName = @alt_names
 [alt_names]
 DNS.1 = localhost
-DNS.1 = boot2docker.local
-IP.1 = 192.168.59.103
-IP.2 = 127.0.0.1
+DNS.1 = ${REGISTRY_ALT_HOSTNAME}
+IP.1 = 127.0.0.1
+IP.2 = ${REGISTRY_ALT_IP}
 EOF
   fi
   if ! ls /ssl/ca.{key,crt}; then
