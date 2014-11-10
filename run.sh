@@ -74,7 +74,7 @@ nsCertType = server
 subjectAltName = @alt_names
 [alt_names]
 DNS.1 = localhost
-DNS.1 = ${REGISTRY_ALT_HOSTNAME}
+DNS.2 = ${REGISTRY_ALT_HOSTNAME}
 IP.1 = 127.0.0.1
 IP.2 = ${REGISTRY_ALT_IP}
 EOF
