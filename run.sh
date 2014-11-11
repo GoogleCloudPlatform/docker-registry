@@ -55,9 +55,10 @@ else
 fi
 
 if [ -n "${REGISTRY_TLS_VERIFY}" ] && [ -z "${GUNICORN_OPTS}" ]; then
-  IFS=: read REGISTRY_ALT_NAME REGISTRY_ADDR_PORT <<< "${REGISTRY_ADDR}"
-  if ! ls /ssl/ssl.conf; then
-      cat <<EOF > /ssl/ssl.conf
+  : ${REGISTRY_ADDR:="localhost:5000"}
+  : ${BOOT2DOCKER_HOST:="boot2docker.local"}
+  : ${BOOT2DOCKER_IP:="192.168.59.103"}
+  cat <<EOF > /ssl/ssl.conf
 [req]
 distinguished_name = req_distinguished_name
 [req_distinguished_name]
@@ -72,18 +73,17 @@ extendedKeyUsage = critical, serverAuth
 nsCertType = server
 subjectAltName = @alt_names
 [alt_names]
-DNS.1 = ${REGISTRY_ALT_NAME} # if localhost
-IP.1 = ${REGISTRY_ALT_NAME} # if 127.0.0.1
+DNS.1 = localhost
+DNS.2 = ${BOOT2DOCKER_HOST}
+IP.1 = 127.0.0.1
+IP.2 = ${BOOT2DOCKER_IP}
 EOF
-  fi
-  if ! ls /ssl/ca.{key,crt}; then
-      echo 01 > /ssl/ca.srl
-      openssl req -subj "/" -config /ssl/ssl.conf -extensions v3_ca -new -x509 -days 365 -newkey rsa:2048 -nodes -keyout /ssl/ca.key -out /ssl/ca.crt
-      openssl req -subj "/" -config /ssl/ssl.conf -reqexts v3_req -new -newkey rsa:2048 -nodes -keyout /ssl/registry.key -out /ssl/registry.csr
-      openssl x509 -req -extfile /ssl/ssl.conf -extensions v3_req -days 365 -in /ssl/registry.csr -CA /ssl/ca.crt -CAkey /ssl/ca.key -out /ssl/registry.cert
-      mkdir -p /certs.d/${REGISTRY_ADDR}
-      cp /ssl/ca.crt /certs.d/${REGISTRY_ADDR}/
-  fi
+  echo 01 > /ssl/ca.srl
+  openssl req -subj "/CN=local docker registry CA" -config /ssl/ssl.conf -extensions v3_ca -new -x509 -days 365 -newkey rsa:2048 -nodes -keyout /ssl/ca.key -out /ssl/ca.crt
+  openssl req -subj "/CN=local docker server cert" -config /ssl/ssl.conf -reqexts v3_req -new -newkey rsa:2048 -nodes -keyout /ssl/registry.key -out /ssl/registry.csr
+  openssl x509 -req -extfile /ssl/ssl.conf -extensions v3_req -days 365 -in /ssl/registry.csr -CA /ssl/ca.crt -CAkey /ssl/ca.key -out /ssl/registry.cert
+  mkdir -p /certs.d/${REGISTRY_ADDR}
+  cp /ssl/ca.crt /certs.d/${REGISTRY_ADDR}/
   SSL_VERSION=$(python -c 'import ssl; print ssl.PROTOCOL_TLSv1')
   : ${GUNICORN_OPTS:="['--certfile','/ssl/registry.cert','--keyfile','/ssl/registry.key','--ca-certs','/ssl/ca.crt','--ssl-version','$SSL_VERSION','--log-level','debug']"}
 fi

@@ -66,22 +66,12 @@ There are three ways to specify the credentials:
 
     # generate credentials
     # and copy CA to /etc/docker/certs.d/localhost:5000/ca.crt
-    docker run -e REGISTRY_TLS_VERIFY=1 -e REGISTRY_COMMON_NAME=localhost:5000 \
+    docker run -e REGISTRY_TLS_VERIFY=1 \
        -v /etc/docker/certs.d:/certs.d \
        -p 127.0.0.1:5000:5000 ... google/docker-registry
-    # generate and save credentials in /mycerts
-    # and copy CA to /etc/docker/certs.d/localhost:5000/ca.crt
-    docker run -e REGISTRY_TLS_VERIFY=1 -e REGISTRY_COMMON_NAME=localhost:5000 \
-        -v /mycerts:ssl -v /etc/docker/certs.d:/certs.d \
-        -p 127.0.0.1:5000:5000 ... google/docker-registry
-    # reuse credentials from /mycerts
-    # assuming CA is already in /etc/docker/certs.d/localhost:5000/ca.crt
-    docker run -e REGISTRY_TLS_VERIFY=1 -e REGISTRY_COMMON_NAME=localhost:5000 \
-        -v /mycerts:/ssl \
-        -p 127.0.0.1:5000:5000 ... google/docker-registry
-    # points to custom credentials from /mycerts
-    # assuming CA is already in /etc/docker/certs.d/localhost:5000/ca.crt
-    docker run -e REGISTRY_TLS_VERIFY=1 -e REGISTRY_COMMON_NAME=localhost:5000 \
+    # use custom credentials from /mycerts
+    # assuming CA is already in /etc/docker/certs.d
+    docker run -e REGISTRY_TLS_VERIFY=1 \
         -v /mycerts:/ssl \
         -e GUNICORN_OPTS="['--certfile','/ssl/myserver.cert','--keyfile','/ssl/myserver.key','--ca-certs','/ssl/myca.crt']" \
         -p 127.0.0.1:5000:5000 ... google/docker-registry
