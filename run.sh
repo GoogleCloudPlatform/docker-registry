@@ -79,8 +79,8 @@ IP.1 = 127.0.0.1
 IP.2 = ${BOOT2DOCKER_IP}
 EOF
   echo 01 > /ssl/ca.srl
-  openssl req -subj "/CN=local docker registry CA" -config /ssl/ssl.conf -extensions v3_ca -new -x509 -days 365 -newkey rsa:2048 -nodes -keyout /ssl/ca.key -out /ssl/ca.crt
-  openssl req -subj "/CN=local docker server cert" -config /ssl/ssl.conf -reqexts v3_req -new -newkey rsa:2048 -nodes -keyout /ssl/registry.key -out /ssl/registry.csr
+  openssl req -subj "/CN=Local CA" -config /ssl/ssl.conf -extensions v3_ca -new -x509 -days 365 -newkey rsa:2048 -nodes -keyout /ssl/ca.key -out /ssl/ca.crt && chmod 600 /ssl/ca.key
+  openssl req -subj "/CN=Local Docker registry" -config /ssl/ssl.conf -reqexts v3_req -new -newkey rsa:2048 -nodes -keyout /ssl/registry.key -out /ssl/registry.csr  && chmod 600 /ssl/registry.key
   openssl x509 -req -extfile /ssl/ssl.conf -extensions v3_req -days 365 -in /ssl/registry.csr -CA /ssl/ca.crt -CAkey /ssl/ca.key -out /ssl/registry.cert
   mkdir -p /certs.d/${REGISTRY_ADDR}
   cp /ssl/ca.crt /certs.d/${REGISTRY_ADDR}/
