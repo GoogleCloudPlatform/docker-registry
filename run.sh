@@ -85,7 +85,7 @@ EOF
   mkdir -p /certs.d/${REGISTRY_ADDR}
   cp /ssl/ca.crt /certs.d/${REGISTRY_ADDR}/
   SSL_VERSION=$(python -c 'import ssl; print ssl.PROTOCOL_TLSv1')
-  : ${GUNICORN_OPTS:="['--certfile','/ssl/registry.cert','--keyfile','/ssl/registry.key','--ca-certs','/ssl/ca.crt','--ssl-version','$SSL_VERSION','--log-level','debug']"}
+  : ${GUNICORN_OPTS:="['--certfile','/ssl/registry.cert','--keyfile','/ssl/registry.key','--ca-certs','/ssl/ca.crt','--ssl-version','$SSL_VERSION']"}
 fi
 
 export GCS_BUCKET BOTO_PATH GUNICORN_OPTS
