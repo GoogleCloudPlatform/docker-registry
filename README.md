@@ -73,7 +73,7 @@ There are three ways to specify the credentials:
     # assuming CA is already in /etc/docker/certs.d
     docker run -e REGISTRY_TLS_VERIFY=1 \
         -v /mycerts:/ssl \
-        -e GUNICORN_OPTS="['--certfile','/ssl/myserver.cert','--keyfile','/ssl/myserver.key','--ca-certs','/ssl/myca.crt']" \
+        -e GUNICORN_OPTS="['--certfile','/ssl/myserver.cert','--keyfile','/ssl/myserver.key','--ca-certs','/ssl/myca.crt','--ssl-version',3]" \
         -p 127.0.0.1:5000:5000 ... google/docker-registry
 
 
