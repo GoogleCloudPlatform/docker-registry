@@ -27,7 +27,7 @@ There are three ways to specify the credentials:
 1. Specify the Google Cloud Platform OAuth refresh token directly in an environment variable.  It is best to put this in an `--env-file` so it can't be seen with `ps` when not running detached.  Example:
 
         $ cat registry-params.env
-        GCP_OAUTH2_REFRESH_TOKEN=refresh-token
+        GCP_OAUTH2_REFRESH_TOKEN=refresh-token # gcloud auth print-refresh-token
         GCS_BUCKET=your-bucket
         $ docker run -d --env-file=registry-params.env -p 5000:5000 google/docker-registry
 
