@@ -63,12 +63,19 @@ There are three ways to specify the credentials:
         $ sudo docker run -d -e GCS_BUCKET=your-bucket -p 5000:5000 google/docker-registry
 
 ### SSL
-
     # generate credentials
+    # run on localhost:5000
     # and copy CA to /etc/docker/certs.d/localhost:5000/ca.crt
     docker run -e REGISTRY_TLS_VERIFY=1 \
        -v /etc/docker/certs.d:/certs.d \
        -p 127.0.0.1:5000:5000 ... google/docker-registry
+    # generate credentials
+    # run on localhost:9000
+    # copy CA to /etc/docker/certs.d/localhost:9000/ca.crt
+    docker run -e REGISTRY_TLS_VERIFY=1 \
+       -e REGISTRY_ADDR=localhost:9000
+       -v /etc/docker/certs.d:/certs.d \
+       -p 127.0.0.1:9000:5000 ... google/docker-registry
     # use custom credentials from /mycerts
     # assuming CA is already in /etc/docker/certs.d
     docker run -e REGISTRY_TLS_VERIFY=1 \
