@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 USAGE="docker run -e GCS_BUCKET=<YOUR_GCS_BUCKET_NAME> \
 [-e GCP_ACCOUNT='<YOUR_EMAIL>' ] \
@@ -53,5 +54,43 @@ else
   fi
 fi
 
-export GCS_BUCKET BOTO_PATH
-exec docker-registry $*
+if [ -n "${REGISTRY_TLS_VERIFY}" ] && [ -z "${GUNICORN_OPTS}" ]; then
+  : ${REGISTRY_ADDR:="localhost:5000"}
+  : ${REGISTRY_ALT_NAMES_DNS_1:="localhost"}
+  : ${REGISTRY_ALT_NAMES_DNS_2:="boot2docker"}
+  : ${REGISTRY_ALT_NAMES_DNS_3:="boot2docker.local"}
+  : ${REGISTRY_ALT_NAMES_IP_1:="127.0.0.1"}
+  : ${REGISTRY_ALT_NAMES_IP_2:="192.168.59.103"}
+  cat <<EOF > /ssl/ssl.conf
+[req]
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+[v3_ca]
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, keyCertSign
+subjectAltName = @alt_names
+[v3_req]
+basicConstraints = critical, CA:false
+keyUsage = critical, digitalSignature
+extendedKeyUsage = critical, serverAuth
+nsCertType = server
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = ${REGISTRY_ALT_NAMES_DNS_1}
+DNS.2 = ${REGISTRY_ALT_NAMES_DNS_2}
+DNS.3 = ${REGISTRY_ALT_NAMES_DNS_3}
+IP.1 = ${REGISTRY_ALT_NAMES_IP_1}
+IP.2 = ${REGISTRY_ALT_NAMES_IP_2}
+EOF
+  echo 01 > /ssl/ca.srl
+  openssl req -subj "/CN=Local CA" -config /ssl/ssl.conf -extensions v3_ca -new -x509 -days 365 -newkey rsa:2048 -nodes -keyout /ssl/ca.key -out /ssl/ca.crt && chmod 600 /ssl/ca.key
+  openssl req -subj "/CN=Local Docker registry" -config /ssl/ssl.conf -reqexts v3_req -new -newkey rsa:2048 -nodes -keyout /ssl/registry.key -out /ssl/registry.csr  && chmod 600 /ssl/registry.key
+  openssl x509 -req -extfile /ssl/ssl.conf -extensions v3_req -days 365 -in /ssl/registry.csr -CA /ssl/ca.crt -CAkey /ssl/ca.key -out /ssl/registry.cert
+  mkdir -p /certs.d/${REGISTRY_ADDR}
+  cp /ssl/ca.crt /certs.d/${REGISTRY_ADDR}/
+  SSL_VERSION=$(python -c 'import ssl; print ssl.PROTOCOL_TLSv1')
+  : ${GUNICORN_OPTS:="['--certfile','/ssl/registry.cert','--keyfile','/ssl/registry.key','--ca-certs','/ssl/ca.crt','--ssl-version','$SSL_VERSION']"}
+fi
+
+export GCS_BUCKET BOTO_PATH GUNICORN_OPTS
+exec "$@"
