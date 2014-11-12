@@ -56,7 +56,8 @@ fi
 
 if [ -n "${REGISTRY_TLS_VERIFY}" ] && [ -z "${GUNICORN_OPTS}" ]; then
   : ${REGISTRY_ADDR:="localhost:5000"}
-  : ${BOOT2DOCKER_HOST:="boot2docker.local"}
+  : ${BOOT2DOCKER_HOSTNAME:="boot2docker"}
+  : ${BOOT2DOCKER_ALT_HOSTNAME:="boot2docker.local"}
   : ${BOOT2DOCKER_IP:="192.168.59.103"}
   cat <<EOF > /ssl/ssl.conf
 [req]
@@ -74,7 +75,8 @@ nsCertType = server
 subjectAltName = @alt_names
 [alt_names]
 DNS.1 = localhost
-DNS.2 = ${BOOT2DOCKER_HOST}
+DNS.2 = ${BOOT2DOCKER_HOSTNAME}
+DNS.3 = ${BOOT2DOCKER_ALT_HOSTNAME}
 IP.1 = 127.0.0.1
 IP.2 = ${BOOT2DOCKER_IP}
 EOF
