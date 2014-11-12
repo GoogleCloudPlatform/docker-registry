@@ -1,7 +1,7 @@
 FROM google/debian:wheezy
 
-RUN apt-get update && apt-get install --no-install-recommends -yq python-pip build-essential python-dev liblzma-dev libffi-dev curl openssl
-RUN pip install docker-registry==0.9
+RUN apt-get update && apt-get install --no-install-recommends -yq python-pip build-essential python-dev liblzma-dev libffi-dev curl
+RUN pip install docker-registry==0.8.1
 
 ADD requirements.txt /docker-registry-gcs-plugin/requirements.txt
 RUN pip install -r  /docker-registry-gcs-plugin/requirements.txt
@@ -16,10 +16,6 @@ ADD run.sh /docker-registry/
 # Credentials. Use --volumes-from gcloud-config (google/cloud-sdk).
 VOLUME ["/.config"]
 
-# ssl certs
-VOLUME ["/ssl"]
-VOLUME ["/certs.d"]
-
 # These should be set if credentials are obtained with google/cloud-sdk.
 ENV OAUTH2_CLIENT_ID 32555940559.apps.googleusercontent.com
 ENV OAUTH2_CLIENT_SECRET ZmssLNjJy2998hD4CTg2ejr2
@@ -29,5 +25,4 @@ EXPOSE 5000
 
 ENV SETTINGS_FLAVOR prod
 WORKDIR /docker-registry
-CMD ["docker-registry"]
 ENTRYPOINT ["./run.sh"]
