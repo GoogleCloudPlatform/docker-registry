@@ -1,2 +1,2 @@
-docker-registry-core==2.0.3
+docker-registry-core==2.0.2
 gcs-oauth2-boto-plugin==1.8
