@@ -56,9 +56,11 @@ fi
 
 if [ -n "${REGISTRY_TLS_VERIFY}" ] && [ -z "${GUNICORN_OPTS}" ]; then
   : ${REGISTRY_ADDR:="localhost:5000"}
-  : ${BOOT2DOCKER_HOSTNAME:="boot2docker"}
-  : ${BOOT2DOCKER_ALT_HOSTNAME:="boot2docker.local"}
-  : ${BOOT2DOCKER_IP:="192.168.59.103"}
+  : ${ALT_NAMES_DNS_1:="localhost"}
+  : ${ALT_NAMES_DNS_2:="boot2docker"}
+  : ${ALT_NAMES_DNS_3:="boot2docker.local"}
+  : ${ALT_NAMES_IP_1:="127.0.0.1"}
+  : ${ALT_NAMES_IP_2:="192.168.59.103"}
   cat <<EOF > /ssl/ssl.conf
 [req]
 distinguished_name = req_distinguished_name
@@ -74,11 +76,11 @@ extendedKeyUsage = critical, serverAuth
 nsCertType = server
 subjectAltName = @alt_names
 [alt_names]
-DNS.1 = localhost
-DNS.2 = ${BOOT2DOCKER_HOSTNAME}
-DNS.3 = ${BOOT2DOCKER_ALT_HOSTNAME}
-IP.1 = 127.0.0.1
-IP.2 = ${BOOT2DOCKER_IP}
+DNS.1 = ${ALT_NAMES_DNS_1}
+DNS.2 = ${ALT_NAMES_DNS_2}
+DNS.3 = ${ALT_NAMES_DNS_3}
+IP.1 = ${ALT_NAMES_IP_1}
+IP.2 = ${ALT_NAMES_IP_2}
 EOF
   echo 01 > /ssl/ca.srl
   openssl req -subj "/CN=Local CA" -config /ssl/ssl.conf -extensions v3_ca -new -x509 -days 365 -newkey rsa:2048 -nodes -keyout /ssl/ca.key -out /ssl/ca.crt && chmod 600 /ssl/ca.key
