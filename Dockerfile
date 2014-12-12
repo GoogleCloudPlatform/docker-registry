@@ -13,8 +13,6 @@ ENV DOCKER_REGISTRY_CONFIG /docker-registry/config/config.yml
 ADD config.yml /docker-registry/config/
 ADD run.sh /docker-registry/
 
-# Credentials. Use --volumes-from gcloud-config (google/cloud-sdk).
-VOLUME ["/.config"]
 
 # These should be set if credentials are obtained with google/cloud-sdk.
 ENV OAUTH2_CLIENT_ID 32555940559.apps.googleusercontent.com
