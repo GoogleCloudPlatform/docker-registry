@@ -1,5 +1,9 @@
 # docker-registry-driver-gcs
 
+**Update, February 2015**: We've launched [Google Container Registry](https://cloud.google.com/tools/container-registry/) and recommend using it instead of docker-registry. Container Registry is a private Docker registry running on Google Cloud Storage. It uses the same authentication, storage, and billing as docker-registry, without the need to run a host instance for your registry. Images on Google Container Registry can be accessed easily from Google Compute Engine, Managed VMs, Google Container Engine, non-Google cloud providers, or your own machines.
+
+---
+
 Sources for [google/docker-registry](https://index.docker.io/u/google/docker-registry/), [Docker Registry](https://github.com/dotcloud/docker-registry) image to push/pull your [Docker](https://www.docker.io/) images to/from [Google Cloud Storage](https://cloud.google.com/products/cloud-storage/).
 
 - Define 'gcs' as a storage plugin
